@@ -1,0 +1,228 @@
+<html>
+  <head>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js'></script>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <script src='CodeFlower.js'> </script>
+    <script src='barChart.js'> </script>
+    <link type="text/css" rel="stylesheet" href="style.css">
+    <script type='text/javascript'>
+    var NUM_GROUPS = 10;
+    var MIN_SIZE = 20;
+    var NORM = 10;
+    var skills_labels = [];
+
+    var name_field = 1,
+    skills_start = 6,
+    skills_end = 17;
+
+    var still_replacing = true;
+
+      function stop() {
+        setText('status', 'finishing up...')
+        still_replacing = false;
+      }
+
+      function prettify(root){
+        var finalString = ""
+        for(var i in root.children){
+          finalString += root.children[i].name + "<br />"
+          for(var j in root.children[i].children){
+            finalString += "   " + root.children[i].children[j].name + "<br />"
+          }
+          finalString += "<br />";
+        }
+        console.log(finalString)
+        return finalString
+      }
+
+      /* Helper function for status */
+      function setText(id, text) {
+        document.getElementById(id).innerHTML = text;
+      }
+      function normalize(size) {
+        return size * NORM
+      }
+
+      function sumSkills(person){
+        var s = 0;
+        for(var i in person.skills){
+          s += normalize(parseInt(person.skills[i]));
+        }
+        return s
+      }
+      function setSizes(root, skill){
+        if(root.isPerson){
+          if(skill > 0) {
+            root.size = normalize(parseInt(root.skills[skill]));
+          } else {
+            root.size = MIN_SIZE + sumSkills(root);
+          }
+          return
+        }
+        for(var c in root.children){
+          setSizes(root.children[c], skill);
+        }
+        var mySize = MIN_SIZE;
+        for(var c in root.children){
+          mySize += root.children[c].size / NORM
+        }
+        root.size = mySize * NORM
+
+        return root
+      }
+
+      function distribute(root, prepared){
+        var i = 0;
+        for(var p in prepared){
+          root["children"][(i % NUM_GROUPS)].children.push(prepared[p])
+          i++;
+        }
+      }
+
+      function makeGroups(root){
+        for(var i=0; i < NUM_GROUPS; i++){
+          group = {
+            "name" : "group" + (i+1),
+            "size": 1,
+            "isGroup" : true,
+            "children" : []
+          }
+          root.children.push(group)
+        }
+      }
+
+      function prepare(data){
+
+        var final = [];
+        for(var person in data){
+          leaf = {};
+          var i = 0;
+          skills = [];
+          for(var point in data[person]){
+            if(i === name_field){
+              leaf.name = data[person][point]
+            } else if (i >= skills_start && i <= skills_end){
+              skills_labels.push(point);
+              skills.push(data[person][point]);
+            }
+            i++;
+          }
+          leaf.skills = skills;
+          leaf.size = 50;
+          leaf.isPerson = true
+          final.push(leaf);
+        }
+        return final;
+      }
+
+      function swapBestWorst(root, i){
+        var max = getMax(root, i);
+        var best = 0, worst = 0;
+        for(var m in max) {
+          if (max[best] < max[m]) {
+            best = m;
+          }
+          if (max[worst] > max[m]){
+            worst = m
+          }
+        }
+        var bestGroup = root.children[best], worstGroup = root.children[worst]
+        var bestPerson, bestI, worstPerson, worstI;
+        for(var j=0; j < bestGroup.children.length; j++){
+          if (j === 0 || bestPerson.size < bestGroup.children[j].size){
+            bestI = j;
+            bestPerson = bestGroup.children[j]
+          }
+        }
+        for(var j=0; j < worstGroup.children.length; j++){
+          if (j === 0 || worstPerson.size > worstGroup.children[j].size){
+            worstI = j;
+            worstPerson = worstGroup.children[j]
+          }
+        }
+        root.children[best].children[bestI] = worstPerson
+        root.children[worst].children[worstI] = bestPerson
+      }
+
+      function getMax(root, i){
+        groups = root.children;
+        max = []
+        for(var g in groups){
+          max.push(parseInt(groups[g].size) / NORM)
+        }
+        return max
+      }
+
+      /* Loading the data with table top */
+      var publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1ZyfzVuZZ70BIrAiF1VptQq29GmwMrmQaYExa1ptaAYU/edit?usp=sharing';
+
+      function init() {
+        setText('status', 'Loading the data...')
+        Tabletop.init( { key: publicSpreadsheetUrl,
+                         callback: prepareData,
+                         simpleSheet: true } )
+      }
+
+      function draw(root, i){
+        var myFlower = new CodeFlower("#flower", 600, 600);
+        var myBar = barChart("#bar", getMax(root, i), 500, 500);
+        myFlower.update(root);
+
+      }
+
+      function animate(root, i, max){
+        if(i > max) {
+          i = i % max
+        }
+        /* Before shuffle */
+        setText('question','Question: ' + skills_labels[i] + '(i:' + i + ')');
+        setSizes(root, i);
+        draw(root, i);
+
+        setTimeout(function(){
+          swapBestWorst(root, i);
+          /* After shuffle*/
+          setSizes(root, i);
+          draw(root,i);
+        }, 1000)
+        setTimeout(function(){
+          if(!still_replacing){
+            setText('groups', prettify(root))
+            return
+          }
+          animate(root,i+1,(skills_end-skills_start));
+        }, 2000)
+      }
+
+      function prepareData(data, tabletop) {
+        setText('status', 'Data loaded!')
+        console.log(data[0]);
+        var prepared = prepare(data);
+        var root = {
+          "name": "ivis18",
+          "size": 1,
+          "children": []
+        }
+        makeGroups(root)
+        distribute(root, prepared)
+        animate(root,1,(skills_end-skills_start));
+
+      }
+
+    window.addEventListener('DOMContentLoaded', init)
+    </script>
+    <title>Gustav H - P1</title>
+  </head>
+  <body>
+    <h1 id="status"></h1>
+    <button onclick="stop()">Stop replacing</button>
+    <h2 id="question"></h2>
+    <p> <b>Left:</b> Interactive group tree <b>Right:</b> Total group score on the question above </p>
+    <p> The algorithm swaps the best person from the best group with the worst from the worst group in each category, loops until stopped by button </p>
+    <div id="flower"></div>
+    <div id="bar"></div><br /><br />
+    <div id="grouptext">
+      <p id="groups"> </p>
+    </div>
+  </body>
+</html>
