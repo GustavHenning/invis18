@@ -1,4 +1,4 @@
-var barChart = function (selector, data, w, h){
+var barChart = function (selector, data, w, h, r){
   //Width and height
   var barPadding = 1;
 
@@ -26,7 +26,7 @@ var barChart = function (selector, data, w, h){
         return d * 4;
      })
      .attr("fill", function(d) {
-      return "rgb(0, 0, " + (d * 10) + ")";
+      return "rgb(" + r + ", 0, " + (d * 10) + ")";
      });
 
   svg.selectAll("text")

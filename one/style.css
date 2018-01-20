@@ -33,6 +33,11 @@ line.link {
 #bar {
   float:left;
 }
+
+#allBar {
+  float:left;
+}
+
 #grouptext{
   float:right;
 }
