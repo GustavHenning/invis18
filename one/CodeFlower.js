@@ -1,6 +1,11 @@
+
+var NODE_SCALE=5;
+
 var CodeFlower = function(selector, w, h) {
   this.w = w;
   this.h = h;
+
+
 
   d3.select(selector).selectAll("svg").remove();
 
@@ -13,11 +18,11 @@ var CodeFlower = function(selector, w, h) {
     .style("fill", "#fff")
     .attr('width', w)
     .attr('height', h);
-    
+
   this.force = d3.layout.force()
     .on("tick", this.tick.bind(this))
-    .charge(function(d) { return d._children ? -d.size / 100 : -40; })
-    .linkDistance(function(d) { return d.target._children ? 80 : 25; })
+    .charge(function(d) { return d._children ? -d.size / 10 : -100; })
+    .linkDistance(function(d) { return d.target._children ? 80 : 5; })
     .size([h, w]);
 };
 
@@ -69,7 +74,7 @@ CodeFlower.prototype.update = function(json) {
   this.node.enter().append('svg:circle')
     .attr("class", "node")
     .classed('directory', function(d) { return (d._children || d.children) ? 1 : 0; })
-    .attr("r", function(d) { return d.children ? 3.5 : Math.pow(d.size, 2/5) || 1; })
+    .attr("r", function(d) { return d.children ? 3.5 : Math.pow(d.size*NODE_SCALE, 2/5) || 1; })
     .style("fill", function color(d) {
       return "hsl(" + parseInt(360 / total * d.id, 10) + ",90%,70%)";
     })
@@ -116,13 +121,18 @@ CodeFlower.prototype.click = function(d) {
   } else {
     d.children = d._children;
     d._children = null;
+    if(d.info){
+      d3.select("#infoDiv").selectAll("p").remove();
+      for(var inf in d.info)
+        d3.select("#infoDiv").append("p").text(d.info[inf]);
+    }
   }
   this.update();
 };
 
 CodeFlower.prototype.mouseover = function(d) {
   this.text.attr('transform', 'translate(' + d.x + ',' + (d.y - 5 - (d.children ? 3.5 : Math.sqrt(d.size) / 2)) + ')')
-    .text(d.name + ": " + d.size + " loc")
+    .text(d.name + ": " + d.size/10 + " pts") // div by NORM
     .style('display', null);
 };
 

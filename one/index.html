@@ -7,20 +7,30 @@
     <link type="text/css" rel="stylesheet" href="style.css">
     <script type='text/javascript'>
     var NUM_GROUPS = 10;
-    var MIN_SIZE = 20;
+    var MIN_SIZE = 1;
     var NORM = 10;
     var skills_labels = [];
+    var globalI = 1;
+    var globalRoot = undefined;
 
     var name_field = 1,
     skills_start = 6,
     skills_end = 17;
 
+    var slider;
     var still_replacing = true;
 
       function stop() {
-        setText('status', 'finishing up...')
+        setText('status', 'Stopped.')
         still_replacing = false;
       }
+
+      function start() {
+        setText('status', 'Started.')
+        still_replacing = true;
+        animate(globalRoot, globalI+1, (skills_end-skills_start));
+      }
+
 
       function prettify(root){
         var finalString = ""
@@ -98,15 +108,21 @@
           leaf = {};
           var i = 0;
           skills = [];
+          info = [];
           for(var point in data[person]){
             if(i === name_field){
               leaf.name = data[person][point]
             } else if (i >= skills_start && i <= skills_end){
               skills_labels.push(point);
               skills.push(data[person][point]);
+            } else if(i > 0) {
+              info.push(point + "-->" + data[person][point])
+              //info.push();
             }
             i++;
           }
+          leaf.info = info;
+          console.log(info);
           leaf.skills = skills;
           leaf.size = 50;
           leaf.isPerson = true
@@ -164,40 +180,64 @@
       }
 
       function draw(root, i){
-        var myFlower = new CodeFlower("#flower", 600, 600);
-        var myBar = barChart("#bar", getMax(root, i), 500, 500, 0);
+        var myFlower = new CodeFlower("#flower", 400, 400);
+        var myBar = barChart("#bar", getMax(root, i), 400, 400, 0, 0);
         setSizes(root, -1);
-        var myAllBar = barChart("#allBar", getMax(root, i), 500, 500, 200);
+        var myAllBar = barChart("#allBar", getMax(root, i), 400, 400, 200, 0);
+        for(var j=1; j <= (skills_end-skills_start); j++){
+          setSizes(root, j);
+          var jBar = barChart("#bar" + j, getMax(root, j), 150, 400, (i == j) ? 250 : (j % 2 == 0 ? 100 : 0), (i == j) ? 100 : (j % 2 == 0 ? 100 : 0));
+        }
+
         setSizes(root, i);
         myFlower.update(root);
 
+      }
+
+      function setI(i){
+        globalI = i;
+        setSizes(globalRoot, i);
+        draw(globalRoot, i);
+        slider.value = globalI;
       }
 
       function animate(root, i, max){
         if(i > max) {
           i = i % max
         }
+        setI(i);
         /* Before shuffle */
         setText('question','Question: ' + skills_labels[i] + '(i:' + i + ')');
-        setSizes(root, i);
-        draw(root, i);
 
-        setTimeout(function(){
-          swapBestWorst(root, i);
-          /* After shuffle*/
-          setSizes(root, i);
-          draw(root,i);
-        }, 1000)
-        setTimeout(function(){
+        if(still_replacing){
+          setTimeout(function(){
+            swapBestWorst(root, i);
+            /* After shuffle*/
+            setSizes(root, i);
+            draw(root,i);
+          }, 1000)
+          setTimeout(function(){
+            if(!still_replacing){
+              setText('groups', prettify(root))
+              return
+            }
+            animate(root,i+1,(skills_end-skills_start));
+          }, 2000)
+        }
+      }
+
+      function loadSlider(){
+        slider = document.getElementById("iRange");
+        slider.oninput = function() {
           if(!still_replacing){
-            setText('groups', prettify(root))
-            return
+            globalI=slider.value;
+            animate(globalRoot, globalI, (skills_end-skills_start));
           }
-          animate(root,i+1,(skills_end-skills_start));
-        }, 2000)
+        }
       }
 
       function prepareData(data, tabletop) {
+        loadSlider();
         setText('status', 'Data loaded!')
         console.log(data[0]);
         var prepared = prepare(data);
@@ -208,7 +248,8 @@
         }
         makeGroups(root)
         distribute(root, prepared)
-        animate(root,1,(skills_end-skills_start));
+        globalRoot = root;
+        animate(root,globalI,(skills_end-skills_start));
 
       }
 
@@ -218,20 +259,40 @@
   </head>
   <body>
     <h1 id="status"></h1>
-    <button onclick="stop()">Stop replacing</button>
+    <button onclick="start()">Start</button>
+    <button onclick="stop()">Stop</button>
+    <div class="slidecontainer">
+      <input type="range" min="1" max="11" value="1" class="slider" id="iRange">
+    </div>
     <h2 id="question"></h2>
     <p> <b>Left:</b> Interactive group tree
       <b>Center:</b> Total group score on the question above
-      <b>Right:</b> Total group score across all questions </b> 
+      <b>Right:</b> Total group score across all questions </b>
       <b> Credits: </b>
       <a href="http://www.redotheweb.com/CodeFlower/">CodeFlower</a>,
       <a href="https://bl.ocks.org/mbostock">M bostock</a>,
       <a href="https://d3js.org/">d3js</a>
     </p>
     <p> The algorithm swaps the best person from the best group with the worst from the worst group in each category, loops until stopped by button </p>
-    <div id="flower"></div>
-    <div id="bar"></div>
-    <div id="allBar"></div><br /><br />
+    <div id="upper">
+      <div id="flower"></div>
+      <div id="bar"></div>
+      <div id="allBar"></div>
+      <div id="infoDiv"><p id="infoTxt"></p></div>
+    </div><br /><br />
+    <div id="lower">
+      <div id="bar1" class="n-bar"></div>
+      <div id="bar2" class="n-bar"></div>
+      <div id="bar3" class="n-bar"></div>
+      <div id="bar4" class="n-bar"></div>
+      <div id="bar5" class="n-bar"></div>
+      <div id="bar6" class="n-bar"></div>
+      <div id="bar7" class="n-bar"></div>
+      <div id="bar8" class="n-bar"></div>
+      <div id="bar9" class="n-bar"></div>
+      <div id="bar10" class="n-bar"></div>
+      <div id="bar11" class="n-bar"></div>
+    </div>
     <div id="grouptext">
       <p id="groups"> </p>
     </div>

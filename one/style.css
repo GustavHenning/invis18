@@ -26,6 +26,10 @@ line.link {
   stroke-width: 1.5px;
 }
 
+#upper {
+  height:400px;
+}
+
 #flower {
   float:left;
 }
@@ -38,6 +42,17 @@ line.link {
   float:left;
 }
 
+#infoDiv {
+  width:600px;
+  height:400px;
+  float:left;
+}
+
 #grouptext{
   float:right;
+}
+
+.n-bar {
+  margin: 5px auto;
+  float:left;
 }
