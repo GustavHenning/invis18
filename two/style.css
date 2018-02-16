@@ -1,0 +1,19 @@
+#map {
+  position: relative;
+  width: 95%;
+  left:2.5%;
+  height: 90%;
+}
+
+#title {
+  text-align: center;
+}
+
+#infoBox {
+  background-color: red;
+  position:absolute;
+  left:10px;
+  bottom: 10px;
+  width: 500px;
+  height: 400px;
+}
