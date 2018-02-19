@@ -1,0 +1,22 @@
+#map {
+  position: relative;
+  width: 80%;
+  height: 95%;
+}
+
+#title {
+  display: inline-flex;  // <-- This is responsible for vertical alignment
+}
+#titleText {
+    min-width:550px;
+    margin: auto 5px;   // <-- This is responsible for vertical alignment
+}
+
+#infoBox {
+  background-color: red;
+  position:absolute;
+  right:10px;
+  bottom: 10px;
+  width: 17%;
+  height: 100%;
+}

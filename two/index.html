@@ -1,18 +1,24 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <!-- External imports -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js'></script>
     <script src="https://d3js.org/d3.v3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
-    <script src="datamaps.world.hires.min.js"></script>
+    <script src="js/datamaps.world.hires.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link type="text/css" rel="stylesheet" href="style.css">
+    <!-- Internal imports JS -->
+    <script src="js/datamap.js"></script>
+    <script src="js/slider.js"></script>
+
+    <!-- Internal imports CSS -->
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <link type="text/css" rel="stylesheet" href="css/slider.css">
     <script type="text/javascript">
     /* how to http://datamaps.github.io/ */
     function init() {
-      var basic = new Datamap({
-        element: document.getElementById("map")
-      });
+      mapInit();
+      initSlider();
     }
 
     window.addEventListener('DOMContentLoaded', init)
@@ -21,7 +27,11 @@
   </head>
   <body>
     <div id="title">
-      <h1> Confidence vs Employment </h1>
+      <h1 id="titleText"> Confidence vs Employment </h1>
+      <div class="slidecontainer">
+        <input type="range" min="1974" max="2016" value="1974" class="slider" id="myRange">
+      </div>
+      <p id="sliderValue">1974</p>
     </div>
     <div id="map"></div>
     <div id="infoBox"></div>
