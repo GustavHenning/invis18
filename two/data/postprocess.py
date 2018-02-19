@@ -23,30 +23,33 @@ current = ""
 for line in lines:
     if "\V" in line:
         if len(current.strip()) > 0:
+            #print answers[current]
             if len(answers[current]) == 0:
                 answers.pop(current, None)
             else:
                 if current not in chronological:
                     chronological.append(current)
-        current=line.strip()
+        current=line.strip().split(' ')[0]
         answers[current] = {}
     elif len(line.strip()) > 0:
-        answers[current][line.split(' ')[0]] = line.partition(' ')[2].strip().decode("utf-8").replace(u"\u00b4", "").encode("utf-8")
+        answers[current][line.split(' ')[0]] = line.partition(' ')[2].strip().decode("utf-8").replace(u"\u00b4", "").replace(u"\u00f3", "").replace("\"", "").encode("utf-8")
 
+
+#print "---------"
 #for key in answers.keys():
 #    if key not in chronological:
 #        print key
 #print "---------"
-print answers
+#print answers
 #for c in chronological:
 #    print c
 
-print "Num questions"
-print len(questions.keys())
-print "Num answers"
-print len(answers.keys())
-print "Num actual contents"
-print len(chronological)
+#print "Num questions"
+#print len(questions.keys())
+#print "Num answers"
+#print len(answers.keys())
+#print "Num actual contents"
+#print len(chronological)
 
 # year => country => question => answer => frequency
 yearData = {}
@@ -65,11 +68,10 @@ for line in open('generated/data_' + year + '.txt'):
     for i in range(2, len(values)-1):
         ans = ""
         try:
-            ans =  answers[chronological[i]][values[i]].replace('\'', '')
+            ans = answers[chronological[i]][values[i]].replace('\'', '')
         except KeyError:
             ans =  "No data"
         question = questions[chronological[i]]
-
         if not ans in yearData[country][question]:
             yearData[country][question][ans] = 1
         else:
@@ -77,6 +79,6 @@ for line in open('generated/data_' + year + '.txt'):
         #print(i)
         #print(chronological[i])
         #print(values[i])
-print yearData
+#print yearData
 with open('generated/result_' + year + '.json', 'w') as fp:
     json.dump(yearData, fp, indent=4)

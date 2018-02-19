@@ -9,6 +9,7 @@ year = sys.argv[1]
 wave_start = sys.argv[2] # e.g. V1
 cc_start = sys.argv[3] # e.g. V2
 
+print year
 # write to answers.txt
 keys = []
 keys.append(wave_start)
@@ -19,6 +20,7 @@ for line in open('generated/questions_' + year + '.txt'):
     vals = [s for s in vals if s]
     keys.append(vals[0])
 
+#print keys
 answers = {}
 keyLine = {}
 lineNumber = -1
@@ -66,6 +68,22 @@ with open('generated/answers_' + year + '.txt', 'w') as fp:
         fp.write("\\" + key + " {" + keyLine[key] + "}" + "\n")
         for line in answers[key]:
             fp.write(line + "\n")
-        fp.write("\\" + key + "\n")
+
+
+indices = [int(x) for x in keyLine.values()]
+indices.sort()
+
+dataToWrite = []
 
 # find relevant columns and put them in data
+for line in open('raw/' + year + '.dat'):
+    vals = line.split(',')
+    dataLine = ""
+    for i in indices:
+        dataLine += "" + vals[i] + ("," if i != indices[-1] else "")
+    dataToWrite.append(dataLine)
+
+with open('generated/data_' + year + '.txt', 'w') as fp:
+    for d in dataToWrite:
+        fp.write(d)
+        fp.write("\n")
