@@ -6,10 +6,29 @@
     <script src="https://d3js.org/d3.v3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
     <script src="js/datamaps.world.hires.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <!-- Internal imports JS -->
+    <script src="js/data/f_15-24.js"></script>
+    <script src="js/data/m_15-24.js"></script>
+    <script src="js/data/t_15-24.js"></script>
+    <script src="js/data/f_above_15.js"></script>
+    <script src="js/data/m_above_15.js"></script>
+    <script src="js/data/t_above_15.js"></script>
+    <script src="js/data/result_1_2015_04_18.js"></script>
+    <script src="js/data/result_2_2015_04_18.js"></script>
+    <script src="js/data/result_3_2015_04_18.js"></script>
+    <script src="js/data/result_4_2015_04_18.js"></script>
+    <script src="js/data/result_5_2015_04_18.js"></script>
+    <script src="js/data/result_6_2016_01_01.js"></script>
+    <!-- actual code -->
+    <script src="js/countryCodes.js"></script>
+    <script src="js/data.js"></script>
     <script src="js/datamap.js"></script>
     <script src="js/slider.js"></script>
+    <script src="js/colorHelp.js"></script>
+    <script src="js/vertBar.js"></script>
+    <script src="js/donutMult.js"></script>
 
     <!-- Internal imports CSS -->
     <link type="text/css" rel="stylesheet" href="css/style.css">
@@ -17,8 +36,11 @@
     <script type="text/javascript">
     /* how to http://datamaps.github.io/ */
     function init() {
-      mapInit();
       initSlider();
+      dataInit();
+      mapInit();
+      console.log(datamap)
+
     }
 
     window.addEventListener('DOMContentLoaded', init)
@@ -26,14 +48,57 @@
     <title>Gustav H - Gapminder</title>
   </head>
   <body>
+
     <div id="title">
       <h1 id="titleText"> Confidence vs Employment </h1>
       <div class="slidecontainer">
-        <input type="range" min="1974" max="2016" value="1974" class="slider" id="myRange">
+        <input type="range" min="1981" max="2016" value="1974" class="slider" id="myRange">
       </div>
-      <p id="sliderValue">1974</p>
+      <p id="sliderValue">1981</p>
+      <div id="colors" style="width:500px; height:20px"></div>
     </div>
     <div id="map"></div>
-    <div id="infoBox"></div>
+    <div id="infoBox">
+      <svg id="gapBox"></svg>
+      <div id="wvsBox">
+        <p style="float:right"> Confidence/Trust <p>
+        <svg class="chart"></svg>
+      </div>
+    </div>
+    <div id="explain" style="margin: auto; float:left;">
+    <h1> Learnings </h1>
+    <p>First mistake: trying to preproccess in bash... python was easier.</p>
+    <img src="img/post.png" />
+    <p>If only this counted as visualization haha.</p>
+    <p>Spending too little time on thinking about how visualizations should interact</p>
+    <h1> Analytic trail 1 </h1>
+    <p style="max-width:600px;">I wanted to see if employment rates had any correlation to confidence and trust in institutions.
+      It's a quite hard problem, because there are multiple variables in both questions, up to 15 in Confidence/Trust.
+      I wanted to use the map and a slider across time. The rest I had to fit to the problem as it arose.
+      I tried a lot of different d3 visualzations, but I cornered myself early with such little space left on the screen.
+      I could visualize the employment average across all nations and it wasn't that interesting. Only thing that stood out was
+      that china had a huge employment rate during some time:
+    </p>
+    <img src="img/china.png" />
+    <h1> Analytic trail 2 </h1>
+    <p> You can tell by now that there are some crazy colors going on.
+      I added the multiplier by counting the occurences of "no" in the answers of the WVS study.
+      It was suprisingly accurate that negative answers had "no" in them, but that also includes "no answer",  which i want
+      to count as a negative response (infers no trust or confidence). d3 colors are super crazy. They are functions, and
+      you define them on intervals, say 1-10, but you can exceed it and get crazy colors!!! This was super interesting,
+      because now the countries that had a heavy bias towards answering positive answers got super crazy colors. So much for this color legend: <img src="img/legend.png"> that I made myself.</p>
+      <p> You can tell that thing really get crazy around 98-99. Here's the difference:</p>
+      <img src="img/1998.png" style="width:400px;"/> <img src="img/1999.png" style="width:400px;"/>
+      <p> It's because a lot of countries didn't participate in WVS as the year switched and a lot of new one's entered the new wave.
+      <img src="img/problems.png" style="float:left;"/> </p>
+        Needless to say, I wish I had a lot more time since things don't always look so pretty...
+        Don't forget you can actually click on the countries.
+        But it's obvious so far that a lot changes with the years, and the prejudices we have towards a static world is kind of like those years with no data:
+        What we think the world is like vs what it's actually like
+        <br/><br/><br/><br/>
+        <img src="img/static.png" style="width:500px" />
+        <img src="img/actually.png" style="width:500px" />
+      </p>
+    </div>
   </body>
 </html>

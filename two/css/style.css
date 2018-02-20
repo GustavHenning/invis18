@@ -12,11 +12,79 @@
     margin: auto 5px;   // <-- This is responsible for vertical alignment
 }
 
+
 #infoBox {
-  background-color: red;
+  /*background-color:red; */
   position:absolute;
   right:10px;
   bottom: 10px;
-  width: 17%;
+  width: 380px;
   height: 100%;
+}
+
+#gapBox {
+  width:380px;
+  height:220px;
+  float:right;
+}
+
+#wvsBox {
+  width:430px;
+  height:220px;
+  float:right;
+}
+
+body {
+    font-family: "Arial", sans-serif;
+}
+
+.bar {
+    fill: #5f89ad;
+}
+
+.axis {
+    font-size: 13px;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    display: none;
+}
+
+.label {
+    font-size: 13px;
+}
+
+
+
+
+.chart .legend {
+  fill: black;
+  font: 14px sans-serif;
+  text-anchor: start;
+  font-size: 12px;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+.chart .label {
+  fill: black;
+  font: 14px sans-serif;
+  text-anchor: end;
+}
+
+.barm:hover {
+  fill: brown;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }

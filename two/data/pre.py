@@ -30,7 +30,13 @@ for line in open('raw/' + year + '.sts'):
     if bool(re.search(r"\\V", line)) and "{" in line and "}" in line:
         lineNumber += 1
         for key in keys:
-            if bool(re.search(r"\\"+key +"[^\d^\w]", line)):
+            if key.count("_") > 1:
+                endKey = key[:key.rfind("_")]
+                if bool(re.search(r"\\"+endKey +"[^\d^\w]", line)):
+                    keyLine[key] = str(lineNumber)
+            elif bool(re.search(r"\\"+key +"[^\d^\w]", line)):
+                print key
+                print lineNumber
                 keyLine[key] = str(lineNumber)
     if bool(re.search(r"" + wave_start + "[^\d^\w](.+)\\" + wave_start, line)):
         answers[wave_start] = []

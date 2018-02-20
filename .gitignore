@@ -1,2 +1,4 @@
 two/data/raw/*
 two/data/generated/*
+two/js/data/*
+two/data/gapminder/*
